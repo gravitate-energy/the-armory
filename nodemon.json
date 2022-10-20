@@ -1,0 +1,5 @@
+{
+    "watch": ["src"],
+    "ext": "js,jsx,ts,tsx,css,module.css",
+    "exec": "yalc publish --push"
+}
