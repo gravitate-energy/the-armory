@@ -17,4 +17,5 @@ export type AuthPayload = {
   authenticate: Function
   clearTokens: Function
   isLoading: boolean
+  baseUrl: string
 }

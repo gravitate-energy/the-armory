@@ -22,7 +22,7 @@ export default defineConfig({
         assetFileNames: (assetInfo) =>
           assetInfo.name === 'style.css' ? 'index.css' : assetInfo.name,
       },
-      external: ['react', 'moment'],
+      external: ['react', 'moment', 'react/jsx-runtime'],
     },
   },
 })

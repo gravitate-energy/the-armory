@@ -12,9 +12,10 @@ const store = window.localStorage
 
 const TokenContext = createContext<AuthPayload | null>(null)
 
-export const TokenProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const TokenProvider: React.FC<{
+  children: ReactNode
+  baseUrl: string
+}> = ({ children, baseUrl }) => {
   const [tokens, setTokens] = useState<Tokens | null>(null)
   const [isLoading, setLoading] = useState(true)
 
@@ -53,6 +54,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({
         tokens,
         authenticate,
         clearTokens,
+        baseUrl,
       }}
     >
       {children}

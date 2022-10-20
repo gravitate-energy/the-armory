@@ -17,22 +17,19 @@ interface TokenRefresh {
 }
 
 export function useApi(options?: IOptions) {
-  const { tokens, authenticate, clearTokens } = useToken()
+  const { tokens, authenticate, clearTokens, baseUrl } = useToken()
 
   async function fetchWrapper<T>(path: string, init?: RequestInit): Promise<T> {
-    const resp = await fetch(
-      `${options?.baseURLOverride || import.meta.env.VITE_API_URL}${path}`,
-      {
-        ...init,
-        headers: {
-          'Content-Type': 'application/json',
-          ...init?.headers,
-          Authorization:
-            store.getItem('accessToken') &&
-            `Bearer ${store.getItem('accessToken')}`,
-        },
-      }
-    )
+    const resp = await fetch(`${options?.baseURLOverride || baseUrl}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...init?.headers,
+        Authorization:
+          store.getItem('accessToken') &&
+          `Bearer ${store.getItem('accessToken')}`,
+      },
+    })
     if (!resp.ok) {
       return Promise.reject(resp.status)
     }
