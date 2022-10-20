@@ -19,7 +19,10 @@ interface TokenRefresh {
 export function useApi(options?: IOptions) {
   const { tokens, authenticate, clearTokens, baseUrl } = useToken()
 
-  async function fetchWrapper<T>(path: string, init?: RequestInit): Promise<T> {
+  async function fetchWrapper<T>(
+    path: string,
+    init?: RequestInit
+  ): Promise<T | Blob> {
     const resp = await fetch(`${options?.baseURLOverride || baseUrl}${path}`, {
       ...init,
       headers: {
@@ -33,6 +36,12 @@ export function useApi(options?: IOptions) {
     if (!resp.ok) {
       return Promise.reject(resp.status)
     }
+
+    if (init.headers['Content-Type'] === 'blob') {
+      // eslint-disable-next-line no-return-await
+      return await resp.blob()
+    }
+
     return (await resp.json()) as T
   }
 
@@ -46,7 +55,7 @@ export function useApi(options?: IOptions) {
     })
       .then((resp) => {
         authenticate({
-          access_token: resp.access_token,
+          access_token: resp.access_token ?? tokens.accessToken,
           refresh_token: tokens.refreshToken,
         })
       })
@@ -67,6 +76,16 @@ export function useApi(options?: IOptions) {
       fetchWithRefresh<T>(path, {
         method: 'POST',
         body: JSON.stringify(body),
+        ...init,
+      }),
+    postBlob: <T,>(path: string, body?: object, init?: RequestInit) =>
+      fetchWithRefresh<T>(path, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        headers: {
+          ...init.headers,
+          'Content-Type': 'blob',
+        },
         ...init,
       }),
   }
