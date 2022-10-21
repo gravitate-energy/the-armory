@@ -38,8 +38,7 @@ export function useApi(options?: IOptions) {
     }
 
     if (init.headers['Content-Type'] === 'blob') {
-      // eslint-disable-next-line no-return-await
-      return await resp.blob()
+      return (await resp.blob()) as Blob
     }
 
     return (await resp.json()) as T
