@@ -19,10 +19,7 @@ interface TokenRefresh {
 export function useApi(options?: IOptions) {
   const { tokens, authenticate, clearTokens, baseUrl } = useToken()
 
-  async function fetchWrapper<T>(
-    path: string,
-    init?: RequestInit
-  ): Promise<T | Blob> {
+  async function fetchWrapper<T>(path: string, init?: RequestInit): Promise<T> {
     const resp = await fetch(`${options?.baseURLOverride || baseUrl}${path}`, {
       ...init,
       headers: {
@@ -38,7 +35,7 @@ export function useApi(options?: IOptions) {
     }
 
     if (init.headers['Content-Type'] === 'blob') {
-      return (await resp.blob()) as Blob
+      return (await resp.blob()) as T
     }
 
     return (await resp.json()) as T
@@ -77,8 +74,8 @@ export function useApi(options?: IOptions) {
         body: JSON.stringify(body),
         ...init,
       }),
-    postBlob: <T,>(path: string, body?: object, init?: RequestInit) =>
-      fetchWithRefresh<T>(path, {
+    postBlob: <Blob,>(path: string, body?: object, init?: RequestInit) =>
+      fetchWithRefresh<Blob>(path, {
         method: 'POST',
         body: JSON.stringify(body),
         headers: {
