@@ -25,8 +25,7 @@ export function useApi(options?: IOptions) {
       headers: {
         ...init?.headers,
         Authorization:
-          store.getItem('accessToken') &&
-          `Bearer ${store.getItem('accessToken')}`,
+          store.getItem('token') && `Bearer ${store.getItem('token')}`,
       },
     })
     if (!resp.ok) {
@@ -55,6 +54,7 @@ export function useApi(options?: IOptions) {
         })
       })
       .catch((error) => {
+        console.log('refresh failed')
         clearTokens()
         throw error
       })

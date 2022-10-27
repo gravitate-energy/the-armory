@@ -27,10 +27,10 @@ export const TokenProvider: React.FC<TokenProviderProps | null> = ({
   const [isLoading, setLoading] = useState(true)
 
   useEffect(() => {
-    const storageRefreshToken = store.getItem('refreshToken')
+    const storageRefreshToken = store.getItem('refresh')
     if (storageRefreshToken) {
       setTokens({
-        accessToken: store.getItem('accessToken'),
+        accessToken: store.getItem('token'),
         refreshToken: storageRefreshToken,
       })
     }
@@ -39,8 +39,9 @@ export const TokenProvider: React.FC<TokenProviderProps | null> = ({
 
   function authenticate(responseTokens: ResponseTokens) {
     // TODO: set it in local storage
-    store.setItem('accessToken', responseTokens.access_token)
-    store.setItem('refreshToken', responseTokens.refresh_token)
+    debugger
+    store.setItem('token', responseTokens.access_token)
+    store.setItem('refresh', responseTokens.refresh_token)
     setTokens({
       accessToken: responseTokens.access_token,
       refreshToken: responseTokens.refresh_token,
@@ -49,9 +50,10 @@ export const TokenProvider: React.FC<TokenProviderProps | null> = ({
   }
 
   function clearTokens() {
+    debugger
     setTokens({ accessToken: '', refreshToken: '' })
-    store.removeItem('accessToken')
-    store.removeItem('refreshToken')
+    store.removeItem('token')
+    store.removeItem('refresh')
     if (logoutCallback) {
       logoutCallback()
     }
