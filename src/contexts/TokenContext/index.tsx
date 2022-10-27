@@ -12,10 +12,17 @@ const store = window.localStorage
 
 const TokenContext = createContext<AuthPayload | null>(null)
 
-export const TokenProvider: React.FC<{
+interface TokenProviderProps {
   children: ReactNode
   baseUrl: string
-}> = ({ children, baseUrl }) => {
+  logoutCallback?: () => void | null
+}
+
+export const TokenProvider: React.FC<TokenProviderProps | null> = ({
+  children,
+  baseUrl,
+  logoutCallback,
+}) => {
   const [tokens, setTokens] = useState<Tokens | null>(null)
   const [isLoading, setLoading] = useState(true)
 
@@ -45,6 +52,9 @@ export const TokenProvider: React.FC<{
     setTokens({ accessToken: '', refreshToken: '' })
     store.removeItem('accessToken')
     store.removeItem('refreshToken')
+    if (logoutCallback) {
+      logoutCallback()
+    }
   }
 
   return (
