@@ -23,7 +23,6 @@ export function useApi(options?: IOptions) {
     const resp = await fetch(`${options?.baseURLOverride || baseUrl}${path}`, {
       ...init,
       headers: {
-        'Content-Type': 'application/json',
         ...init?.headers,
         Authorization:
           store.getItem('accessToken') &&
@@ -34,8 +33,8 @@ export function useApi(options?: IOptions) {
       return Promise.reject(resp.status)
     }
 
-    if (init.headers['Content-Type'] === 'blob') {
-      return (await resp.blob()) as T
+    if (init?.headers && init?.headers['Content-Type'] === 'blob') {
+      return (await resp.blob()) as unknown as T
     }
 
     return (await resp.json()) as T
@@ -72,15 +71,28 @@ export function useApi(options?: IOptions) {
       fetchWithRefresh<T>(path, {
         method: 'POST',
         body: JSON.stringify(body),
+        headers: {
+          ...init?.headers,
+          'Content-Type': 'application/json',
+        },
         ...init,
       }),
     postBlob: <Blob,>(path: string, body?: object, init?: RequestInit) =>
       fetchWithRefresh<Blob>(path, {
-        method: 'POST',
+        method: 'GET',
         body: JSON.stringify(body),
         headers: {
-          ...init.headers,
+          ...init?.headers,
           'Content-Type': 'blob',
+        },
+        ...init,
+      }),
+    uploadFile: <T,>(path: string, body?: object, init?: RequestInit) =>
+      fetchWithRefresh<T>(path, {
+        method: 'POST',
+        body,
+        headers: {
+          ...init?.headers,
         },
         ...init,
       }),
