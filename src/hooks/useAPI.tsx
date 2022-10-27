@@ -77,7 +77,7 @@ export function useApi(options?: IOptions) {
         },
         ...init,
       }),
-    postBlob: <Blob,>(path: string, body?: object, init?: RequestInit) =>
+    downloadFile: <Blob,>(path: string, body?: object, init?: RequestInit) =>
       fetchWithRefresh<Blob>(path, {
         method: 'GET',
         body: JSON.stringify(body),
