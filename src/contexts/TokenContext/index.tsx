@@ -39,7 +39,6 @@ export const TokenProvider: React.FC<TokenProviderProps | null> = ({
 
   function authenticate(responseTokens: ResponseTokens) {
     // TODO: set it in local storage
-    debugger
     store.setItem('token', responseTokens.access_token)
     store.setItem('refresh', responseTokens.refresh_token)
     setTokens({
@@ -50,7 +49,6 @@ export const TokenProvider: React.FC<TokenProviderProps | null> = ({
   }
 
   function clearTokens() {
-    debugger
     setTokens({ accessToken: '', refreshToken: '' })
     store.removeItem('token')
     store.removeItem('refresh')
