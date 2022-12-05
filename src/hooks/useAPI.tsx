@@ -8,6 +8,8 @@ interface IOptions {
   baseURLOverride?: string
 }
 
+type QueryParams = URLSearchParams | string
+type InitWithQueryParams = RequestInit & { queryParams?: QueryParams }
 interface TokenRefresh {
   token_type: string
   access_token: string
@@ -16,11 +18,27 @@ interface TokenRefresh {
   state: string
 }
 
+function appendURLQueryParams(url: string, queryParams: QueryParams) {
+  if (!queryParams) return url
+
+  return `${url}?${
+    typeof queryParams === 'string' ? queryParams : queryParams.toString()
+  }`
+}
+
 export function useApi(options?: IOptions) {
   const { tokens, authenticate, clearTokens, baseUrl } = useToken()
 
-  async function fetchWrapper<T>(path: string, init?: RequestInit): Promise<T> {
-    const resp = await fetch(`${options?.baseURLOverride || baseUrl}${path}`, {
+  async function fetchWrapper<T>(
+    path: string,
+    init?: InitWithQueryParams
+  ): Promise<T> {
+    const url = appendURLQueryParams(
+      `${options?.baseURLOverride || baseUrl}${path}`,
+      init?.queryParams
+    )
+
+    const resp = await fetch(url, {
       ...init,
       headers: {
         ...init?.headers,
@@ -28,6 +46,7 @@ export function useApi(options?: IOptions) {
           store.getItem('token') && `Bearer ${store.getItem('token')}`,
       },
     })
+
     if (!resp.ok) {
       return Promise.reject(resp.status)
     }
@@ -59,6 +78,7 @@ export function useApi(options?: IOptions) {
         throw error
       })
   }
+
   const fetchWithRefresh = configureRefreshFetch({
     fetch: fetchWrapper,
     shouldRefreshToken,
@@ -67,7 +87,7 @@ export function useApi(options?: IOptions) {
 
   return {
     fetch: fetchWithRefresh,
-    post: <T,>(path: string, body?: object, init?: RequestInit) =>
+    post: <T,>(path: string, body?: object, init?: InitWithQueryParams) =>
       fetchWithRefresh<T>(path, {
         method: 'POST',
         body: JSON.stringify(body),
@@ -77,7 +97,11 @@ export function useApi(options?: IOptions) {
         },
         ...init,
       }),
-    downloadFile: <Blob,>(path: string, body?: object, init?: RequestInit) =>
+    postBlob: <Blob,>(
+      path: string,
+      body?: object,
+      init?: InitWithQueryParams
+    ) =>
       fetchWithRefresh<Blob>(path, {
         method: 'GET',
         body: JSON.stringify(body),
