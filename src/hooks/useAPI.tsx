@@ -39,27 +39,34 @@ export function useApi(options?: IOptions) {
       init?.queryParams
     )
 
-    const resp = await fetch(url, {
-      ...init,
-      headers: {
-        ...init?.headers,
-        Authorization:
-          store.getItem('token') && `Bearer ${store.getItem('token')}`,
-      },
-    })
+    try {
+      const resp = await fetch(url, {
+        ...init,
+        headers: {
+          ...init?.headers,
+          Authorization:
+            store.getItem('token') && `Bearer ${store.getItem('token')}`,
+        },
+      })
 
-    if (!resp.ok) {
-      if (errorHandler) {
-        errorHandler(resp)
+      if (!resp.ok) {
+        if (errorHandler) {
+          errorHandler(resp)
+        }
+        return Promise.reject(resp.status)
       }
-      return Promise.reject(resp.status)
-    }
 
-    if (init?.headers && init?.headers['Content-Type'] === 'blob') {
-      return (await resp.blob()) as unknown as T
-    }
+      if (init?.headers && init?.headers['Content-Type'] === 'blob') {
+        return (await resp.blob()) as unknown as T
+      }
 
-    return (await resp.json()) as T
+      return (await resp.json()) as T
+    } catch (e) {
+      if (errorHandler) {
+        errorHandler()
+      }
+      return Promise.reject(e)
+    }
   }
 
   const shouldRefreshToken = (error) => error === 401
