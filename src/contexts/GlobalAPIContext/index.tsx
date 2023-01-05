@@ -1,23 +1,24 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-
 import type { ReactNode } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react'
 
 import { AuthPayload, ResponseTokens, Tokens } from './types'
 
 const store = window.localStorage
 
-const TokenContext = createContext<AuthPayload | null>(null)
+const GlobalAPIContext = createContext<AuthPayload | null>(null)
 
-interface TokenProviderProps {
+interface GlobalAPIProviderProps {
   children: ReactNode
   baseUrl: string
   logoutCallback?: () => void | null
+  errorHandler?: () => void | null
 }
 
-export const TokenProvider: React.FC<TokenProviderProps | null> = ({
+export const GlobalAPIProvider: React.FC<GlobalAPIProviderProps | null> = ({
   children,
   baseUrl,
   logoutCallback,
+  errorHandler,
 }) => {
   const [tokens, setTokens] = useState<Tokens | null>(null)
   const [isLoading, setLoading] = useState(true)
@@ -54,18 +55,19 @@ export const TokenProvider: React.FC<TokenProviderProps | null> = ({
   }
 
   return (
-    <TokenContext.Provider
+    <GlobalAPIContext.Provider
       value={{
         isLoading,
         tokens,
         authenticate,
         clearTokens,
         baseUrl,
+        errorHandler,
       }}
     >
       {children}
-    </TokenContext.Provider>
+    </GlobalAPIContext.Provider>
   )
 }
 
-export const useToken = () => useContext(TokenContext)
+export const useGlobalAPI = () => useContext(GlobalAPIContext)

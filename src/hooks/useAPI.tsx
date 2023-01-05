@@ -1,6 +1,6 @@
 import { configureRefreshFetch } from 'refresh-fetch'
 
-import { useToken } from '../contexts/TokenContext'
+import { useGlobalAPI } from '../contexts/GlobalAPIContext'
 
 const store = window.localStorage
 
@@ -27,7 +27,8 @@ function appendURLQueryParams(url: string, queryParams: QueryParams) {
 }
 
 export function useApi(options?: IOptions) {
-  const { tokens, authenticate, clearTokens, baseUrl } = useToken()
+  const { tokens, authenticate, clearTokens, baseUrl, errorHandler } =
+    useGlobalAPI()
 
   async function fetchWrapper<T>(
     path: string,
@@ -48,6 +49,9 @@ export function useApi(options?: IOptions) {
     })
 
     if (!resp.ok) {
+      if (errorHandler) {
+        errorHandler(resp)
+      }
       return Promise.reject(resp.status)
     }
 
@@ -92,9 +96,19 @@ export function useApi(options?: IOptions) {
         method: 'POST',
         body: JSON.stringify(body),
         headers: {
-          ...init?.headers,
           'Content-Type': 'application/json',
+          ...init?.headers,
         },
+        ...init,
+      }),
+    postFormData: <T,>(
+      path: string,
+      body?: object,
+      init?: InitWithQueryParams
+    ) =>
+      fetchWithRefresh<T>(path, {
+        method: 'POST',
+        body,
         ...init,
       }),
     postBlob: <Blob,>(

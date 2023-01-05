@@ -1,3 +1,3 @@
 export { useLocalStorage } from './hooks/useLocalStorage'
-export { TokenProvider, useToken } from './contexts/TokenContext'
+export { GlobalAPIProvider, useGlobalAPI } from './contexts/GlobalAPIContext'
 export { useApi } from './hooks/useAPI'
