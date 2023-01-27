@@ -13,6 +13,7 @@ export type User = {
 }
 
 export type AuthPayload = {
+  defaultParams: object
   tokens: Tokens
   authenticate: Function
   clearTokens: Function

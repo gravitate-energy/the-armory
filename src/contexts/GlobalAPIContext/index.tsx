@@ -10,6 +10,7 @@ const GlobalAPIContext = createContext<AuthPayload | null>(null)
 interface GlobalAPIProviderProps {
   children: ReactNode
   baseUrl: string
+  defaultParams?: object
   logoutCallback?: () => void | null
   errorHandler?: () => void | null
 }
@@ -19,6 +20,7 @@ export const GlobalAPIProvider: React.FC<GlobalAPIProviderProps | null> = ({
   baseUrl,
   logoutCallback,
   errorHandler,
+  defaultParams,
 }) => {
   const [tokens, setTokens] = useState<Tokens | null>(null)
   const [isLoading, setLoading] = useState(true)
@@ -63,6 +65,7 @@ export const GlobalAPIProvider: React.FC<GlobalAPIProviderProps | null> = ({
         clearTokens,
         baseUrl,
         errorHandler,
+        defaultParams,
       }}
     >
       {children}

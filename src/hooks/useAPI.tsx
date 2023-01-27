@@ -18,17 +18,29 @@ interface TokenRefresh {
   state: string
 }
 
-function appendURLQueryParams(url: string, queryParams: QueryParams) {
-  if (!queryParams) return url
+function appendURLQueryParams(
+  url: string,
+  queryParams: QueryParams,
+  defaultParams?: object
+) {
+  if (!queryParams && !defaultParams) return url
 
   return `${url}?${
-    typeof queryParams === 'string' ? queryParams : queryParams.toString()
-  }`
+    typeof queryParams === 'string'
+      ? queryParams
+      : queryParams?.toString() || ''
+  }${defaultParams ? new URLSearchParams(defaultParams) : ''}`
 }
 
 export function useApi(options?: IOptions) {
-  const { tokens, authenticate, clearTokens, baseUrl, errorHandler } =
-    useGlobalAPI()
+  const {
+    tokens,
+    authenticate,
+    clearTokens,
+    baseUrl,
+    errorHandler,
+    defaultParams,
+  } = useGlobalAPI()
 
   async function fetchWrapper<T>(
     path: string,
@@ -36,7 +48,8 @@ export function useApi(options?: IOptions) {
   ): Promise<T> {
     const url = appendURLQueryParams(
       `${options?.baseURLOverride || baseUrl}${path}`,
-      init?.queryParams
+      init?.queryParams,
+      defaultParams
     )
 
     try {
@@ -101,7 +114,9 @@ export function useApi(options?: IOptions) {
     post: <T,>(path: string, body?: object, init?: InitWithQueryParams) =>
       fetchWithRefresh<T>(path, {
         method: 'POST',
-        body: JSON.stringify(body),
+        body: defaultParams
+          ? JSON.stringify({ body, ...defaultParams })
+          : JSON.stringify(body),
         headers: {
           'Content-Type': 'application/json',
           ...init?.headers,
