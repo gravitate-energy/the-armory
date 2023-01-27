@@ -115,7 +115,7 @@ export function useApi(options?: IOptions) {
       fetchWithRefresh<T>(path, {
         method: 'POST',
         body: defaultParams
-          ? JSON.stringify({ body, ...defaultParams })
+          ? JSON.stringify({ ...body, ...defaultParams })
           : JSON.stringify(body),
         headers: {
           'Content-Type': 'application/json',
