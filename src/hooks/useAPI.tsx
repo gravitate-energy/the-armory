@@ -97,9 +97,12 @@ export function useApi(options?: IOptions) {
 
   const refreshToken = () => {
     const data = { refresh_token: tokens.refreshToken }
-    return fetchWrapper<TokenRefresh>('/token/refresh', {
+    return fetchWrapper<TokenRefresh>('token/refresh', {
       method: 'POST',
       body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     })
       .then((resp) => {
         authenticate({
