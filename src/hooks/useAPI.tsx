@@ -21,15 +21,25 @@ interface TokenRefresh {
 function appendURLQueryParams(
   url: string,
   queryParams: QueryParams,
-  defaultParams?: object
+  defaultParams?: object,
+  ignoreDefaults
 ) {
-  if (!queryParams && !defaultParams) return url
+  let formattedUrl = url
+  if (!queryParams && (!defaultParams || ignoreDefaults)) return url
+  if (queryParams) {
+    formattedUrl += `?${
+      typeof queryParams === 'string'
+        ? queryParams
+        : queryParams?.toString() || ''
+    }`
+  }
+  if (defaultParams && !ignoreDefaults) {
+    formattedUrl += `${queryParams ? '&' : '?'}${new URLSearchParams(
+      defaultParams
+    )}`
+  }
 
-  return `${url}?${
-    typeof queryParams === 'string'
-      ? queryParams
-      : queryParams?.toString() || ''
-  }${defaultParams ? new URLSearchParams(defaultParams) : ''}`
+  return formattedUrl
 }
 
 export function useApi(options?: IOptions) {
@@ -49,7 +59,8 @@ export function useApi(options?: IOptions) {
     const url = appendURLQueryParams(
       `${options?.baseURLOverride || baseUrl}${path}`,
       init?.queryParams,
-      defaultParams
+      defaultParams,
+      init?.ignoreDefaults
     )
 
     try {
@@ -109,14 +120,19 @@ export function useApi(options?: IOptions) {
     refreshToken,
   })
 
+  const addDefaultParams = (body, ignoreDefaults) => {
+    if (defaultParams && !Array.isArray(body) && !ignoreDefaults) {
+      return JSON.stringify({ ...defaultParams, ...body })
+    }
+    return JSON.stringify(body)
+  }
+
   return {
     fetch: fetchWithRefresh,
     post: <T,>(path: string, body?: object, init?: InitWithQueryParams) =>
       fetchWithRefresh<T>(path, {
         method: 'POST',
-        body: defaultParams
-          ? JSON.stringify({ ...body, ...defaultParams })
-          : JSON.stringify(body),
+        body: addDefaultParams(body, init?.ignoreDefaults),
         headers: {
           'Content-Type': 'application/json',
           ...init?.headers,
