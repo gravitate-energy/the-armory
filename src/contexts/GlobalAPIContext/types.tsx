@@ -14,6 +14,7 @@ export type User = {
 
 export type AuthPayload = {
   defaultParams: object
+  defaultHeaders: object
   tokens: Tokens
   authenticate: Function
   clearTokens: Function

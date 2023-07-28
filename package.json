@@ -1,6 +1,6 @@
 {
   "name": "@gravitate-js/the-armory",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "description": "Helpful utility hooks,contexts, and functions for React. ",
   "author": "zb.capspire",
   "license": "ISC",
