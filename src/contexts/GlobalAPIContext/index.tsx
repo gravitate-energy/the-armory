@@ -13,6 +13,7 @@ interface GlobalAPIProviderProps {
   defaultParams?: object
   logoutCallback?: () => void | null
   errorHandler?: () => void | null
+  defaultHeaders?: object
 }
 
 export const GlobalAPIProvider: React.FC<GlobalAPIProviderProps | null> = ({
@@ -21,6 +22,7 @@ export const GlobalAPIProvider: React.FC<GlobalAPIProviderProps | null> = ({
   logoutCallback,
   errorHandler,
   defaultParams,
+  defaultHeaders,
 }) => {
   const [tokens, setTokens] = useState<Tokens | null>(null)
   const [isLoading, setLoading] = useState(true)
@@ -66,6 +68,7 @@ export const GlobalAPIProvider: React.FC<GlobalAPIProviderProps | null> = ({
         baseUrl,
         errorHandler,
         defaultParams,
+        defaultHeaders,
       }}
     >
       {children}

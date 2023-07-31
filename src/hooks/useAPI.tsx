@@ -50,6 +50,7 @@ export function useApi(options?: IOptions) {
     baseUrl,
     errorHandler,
     defaultParams,
+    defaultHeaders,
   } = useGlobalAPI()
 
   async function fetchWrapper<T>(
@@ -138,6 +139,7 @@ export function useApi(options?: IOptions) {
         body: addDefaultParams(body, init?.ignoreDefaults),
         headers: {
           'Content-Type': 'application/json',
+          ...defaultHeaders,
           ...init?.headers,
         },
         ...init,
