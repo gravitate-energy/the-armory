@@ -78,14 +78,40 @@ export function useApi(options?: IOptions) {
         if (errorHandler) {
           errorHandler(resp)
         }
-        return Promise.reject(resp.status)
+
+        const contentType = resp.headers.get('Content-Type')
+
+        if (contentType === 'application/json') {
+          try {
+            const json = await resp.json()
+            return Promise.reject({ statusCode: resp.status, json })
+          } catch (error) {
+            return Promise.reject({ statusCode: resp.status, json: {} })
+          }
+        }
+
+        if (contentType === 'text/plain') {
+          const text = await resp.text()
+          return Promise.reject({ statusCode: resp.status, text })
+        }
+
+        return Promise.reject({ statusCode: resp.status })
       }
 
-      if (init?.headers && init?.headers['Content-Type'] === 'blob') {
+      if (
+        (init?.headers && init?.headers['Content-Type'] === 'blob') ||
+        resp.headers.get('Content-Type') === 'blob'
+      ) {
         return (await resp.blob()) as unknown as T
       }
 
-      return (await resp.json()) as T
+      try {
+        // The content type wasn't blob, so we're assuming json for the response type
+        return (await resp.json()) as T
+      } catch (_error) {
+        // If we get a 200, but json parsing failed we still want to resolve the promise with an empty object
+        return Promise.resolve({} as T)
+      }
     } catch (e) {
       if (errorHandler) {
         errorHandler()
@@ -94,7 +120,9 @@ export function useApi(options?: IOptions) {
     }
   }
 
-  const shouldRefreshToken = (error) => error === 401
+  const shouldRefreshToken = (error) =>
+    // new payload for errors is { statusCode: number, json?: object}, but we still need to support the old payload
+    error?.statusCode === 401 || error === 401
 
   const refreshToken = () => {
     const data = { refresh_token: tokens.refreshToken }
