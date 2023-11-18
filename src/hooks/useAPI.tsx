@@ -9,7 +9,10 @@ interface IOptions {
 }
 
 type QueryParams = URLSearchParams | string
-type InitWithQueryParams = RequestInit & { queryParams?: QueryParams }
+type InitWithQueryParams = RequestInit & {
+  queryParams?: QueryParams
+  ignoreDefaults?: boolean
+}
 interface TokenRefresh {
   token_type: string
   access_token: string
@@ -21,7 +24,7 @@ interface TokenRefresh {
 function appendURLQueryParams(
   url: string,
   queryParams: QueryParams,
-  defaultParams?: object,
+  defaultParams = {},
   ignoreDefaults
 ) {
   let formattedUrl = url

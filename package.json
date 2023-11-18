@@ -1,6 +1,6 @@
 {
   "name": "@gravitate-js/the-armory",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "Helpful utility hooks,contexts, and functions for React. ",
   "author": "zb.capspire",
   "license": "ISC",
@@ -68,7 +68,7 @@
   },
   "dependencies": {
     "antd": "4.20",
-    "react-router-dom": "^6.16.0",
+    "react-router-dom": "6.16.0",
     "refresh-fetch": "^0.8.0",
     "vite-plugin-dts": "^1.6.6"
   }
