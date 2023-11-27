@@ -12,6 +12,7 @@ type QueryParams = URLSearchParams | string
 type InitWithQueryParams = RequestInit & {
   queryParams?: QueryParams
   ignoreDefaults?: boolean
+  responseType?: string
 }
 interface TokenRefresh {
   token_type: string
@@ -105,6 +106,10 @@ export function useApi(options?: IOptions) {
         (init?.headers && init?.headers['Content-Type'] === 'blob') ||
         resp.headers.get('Content-Type') === 'blob'
       ) {
+        return (await resp.blob()) as unknown as T
+      }
+
+      if (init?.responseType === 'blob') {
         return (await resp.blob()) as unknown as T
       }
 
