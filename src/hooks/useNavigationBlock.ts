@@ -7,12 +7,14 @@ interface IHookProps {
   blockCondition: boolean
   modalTitle?: string
   modalContent?: string
+  beforeProceed?: (blocker: ReturnType<typeof useBlocker>) => Promise<void>
 }
 
 export const useNavigationBlock = ({
   blockCondition,
   modalTitle = 'Are you sure you want to leave this page?',
   modalContent = 'You have unsaved changes that will be lost.',
+  beforeProceed,
 }: IHookProps) => {
   const shouldBlock = useCallback<BlockerFn>(
     (event) => blockCondition,
@@ -21,6 +23,7 @@ export const useNavigationBlock = ({
 
   const blocker = useBlocker(shouldBlock)
 
+  // This will block hard reloads in the browser if changes are unsaved
   useEffect(() => {
     window.onbeforeunload = blockCondition ? () => true : null
     return () => {
@@ -35,23 +38,16 @@ export const useNavigationBlock = ({
         content: modalContent,
         okText: 'Leave',
         cancelText: 'Stay',
-        onOk: () => {
+        onOk: async () => {
+          if (beforeProceed && typeof beforeProceed === 'function') {
+            await beforeProceed(blocker)
+          }
           blocker.proceed()
-          console.log(1)
-          blocker.reset()
         },
         onCancel: () => {
-          console.log(2)
           blocker.reset()
         },
       })
-    }
-
-    return () => {
-      Modal.destroyAll()
-      if (blocker.state === 'blocked') {
-        blocker.reset()
-      }
     }
   }, [blocker])
 
